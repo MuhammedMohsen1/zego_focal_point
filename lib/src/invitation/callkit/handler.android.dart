@@ -9,8 +9,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 
 // Package imports:
-import 'package:flutter_callkit_incoming_yoer/entities/call_event.dart';
-import 'package:flutter_callkit_incoming_yoer/flutter_callkit_incoming.dart';
+
 import 'package:zego_uikit/zego_uikit.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 import 'package:zego_zpns/zego_zpns.dart';
@@ -26,7 +25,7 @@ import 'package:zego_uikit_prebuilt_call/src/invitation/notification/defines.dar
 import 'package:zego_uikit_prebuilt_call/src/invitation/notification/notification_manager.dart';
 
 const backgroundMessageIsolatePortName = 'bg_msg_isolate_port';
-StreamSubscription<CallEvent?>? flutterCallkitIncomingStreamSubscription;
+// StreamSubscription<CallEvent?>? flutterCallkitIncomingStreamSubscription;
 
 /// @nodoc
 ///
@@ -106,12 +105,12 @@ Future<void> onBackgroundMessageReceived(ZPNsMessage message) async {
     /// this will fix the issue that when offline call dialog popup, user click appicon to open app,
     if (message is String && message == 'close') {
       ZegoLoggerService.logInfo(
-        'isolate: close port command received, also cancel the flutterCallkitIncomingStreamSubscription(${flutterCallkitIncomingStreamSubscription?.hashCode})',
+        'isolate: close port command received, also cancel the flutterCallkitIncomingStreamSubscription(})',
         tag: 'call',
         subTag: 'background message',
       );
-      flutterCallkitIncomingStreamSubscription?.cancel();
-      flutterCallkitIncomingStreamSubscription = null;
+      // flutterCallkitIncomingStreamSubscription?.cancel();
+      // flutterCallkitIncomingStreamSubscription = null;
       backgroundPort.close();
       return;
     }
@@ -461,112 +460,112 @@ void _listenFlutterCallkitIncomingEvent({
   required List<StreamSubscription<dynamic>> signalingSubscriptions,
   required ReceivePort backgroundPort,
 }) {
-  flutterCallkitIncomingStreamSubscription =
-      FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
-    // check isolate
-    // After receiving the offline pop-up window,
-    // if the user directly clicks the app icon to open the app, the main isolate will register the desired isolate
-    // to the IsolateNameServer. So here we can use this to determine whether we need to ignore the old event.
-    final lookup =
-        IsolateNameServer.lookupPortByName(backgroundMessageIsolatePortName);
-    ZegoLoggerService.logInfo(
-      'isolate: FlutterCallkitIncoming.onEvent, lookupPortResult(${lookup?.hashCode}),backgroundPort(${backgroundPort.hashCode}),backgroundPort!.sendPort(${backgroundPort.sendPort.hashCode})',
-      tag: 'call',
-      subTag: 'background message',
-    );
-    if ((lookup != null) &&
-        (lookup.hashCode != backgroundPort.sendPort.hashCode)) {
-      ZegoLoggerService.logWarn(
-        'isolate: isolate changed, cause of app opened! ignore this event',
-        tag: 'call',
-        subTag: 'background message',
-      );
-      return;
-    }
-
-    if (null == event) {
-      ZegoLoggerService.logError(
-        'android callkit incoming event is null',
-        tag: 'call',
-        subTag: 'background message',
-      );
-
-      return;
-    }
-
-    ZegoLoggerService.logInfo(
-      'android callkit incoming event, event:${event.event}, body:${event.body}',
-      tag: 'call',
-      subTag: 'background message',
-    );
-
-    switch (event.event) {
-      case Event.actionCallAccept:
-
-        /// After launching the app, will check in the [ZegoUIKitPrebuiltCallInvitationService.init] method.
-        /// If there is exist an OfflineCallKitParams, simulate accepting the online call and join the room directly.
-
-        ZegoLoggerService.logInfo(
-          'accept, write accept to local, wait direct accept and enter call in ZegoUIKitPrebuiltCallInvitationService.init',
-          tag: 'call',
-          subTag: 'background message',
-        );
-        final paramsJson = await getCurrentCallKitParams();
-        final paramsMap = jsonDecode(paramsJson!);
-        paramsMap['accept'] = true;
-        await setOfflineCallKitParams(jsonEncode(paramsMap));
-
-        break;
-      case Event.actionCallDecline:
-        await clearOfflineCallKitCallID();
-        await clearOfflineCallKitParams();
-
-        await ZegoUIKit().getSignalingPlugin().refuseInvitationByInvitationID(
-              invitationID: invitationID,
-              data: '{"reason":"decline"}',
-            );
-        break;
-      case Event.actionCallTimeout:
-        await clearOfflineCallKitCallID();
-        await clearOfflineCallKitParams();
-        break;
-      default:
-        break;
-    }
-
-    switch (event.event) {
-      case Event.actionCallAccept:
-      case Event.actionCallDecline:
-      case Event.actionCallEnded:
-      case Event.actionCallTimeout:
-        ZegoLoggerService.logInfo(
-          'isolate: clear IsolateNameServer, port:${backgroundPort.hashCode}',
-          tag: 'call',
-          subTag: 'background message',
-        );
-        backgroundPort.close();
-        IsolateNameServer.removePortNameMapping(
-          backgroundMessageIsolatePortName,
-        );
-
-        for (final subscription in signalingSubscriptions) {
-          subscription.cancel();
-        }
-
-        ZegoLoggerService.logInfo(
-          'clear signaling plugin, need uninstalled:$signalingPluginNeedUninstalled',
-          tag: 'call',
-          subTag: 'background message',
-        );
-        if (signalingPluginNeedUninstalled.value) {
-          signalingPluginNeedUninstalled.value = false;
-          await _uninstallSignalingPlugin(); // todo judge app is running or not?
-        }
-        break;
-      default:
-        break;
-    }
-  });
+  // flutterCallkitIncomingStreamSubscription =
+  //     FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
+  //   // check isolate
+  //   // After receiving the offline pop-up window,
+  //   // if the user directly clicks the app icon to open the app, the main isolate will register the desired isolate
+  //   // to the IsolateNameServer. So here we can use this to determine whether we need to ignore the old event.
+  //   final lookup =
+  //       IsolateNameServer.lookupPortByName(backgroundMessageIsolatePortName);
+  //   ZegoLoggerService.logInfo(
+  //     'isolate: FlutterCallkitIncoming.onEvent, lookupPortResult(${lookup?.hashCode}),backgroundPort(${backgroundPort.hashCode}),backgroundPort!.sendPort(${backgroundPort.sendPort.hashCode})',
+  //     tag: 'call',
+  //     subTag: 'background message',
+  //   );
+  //   if ((lookup != null) &&
+  //       (lookup.hashCode != backgroundPort.sendPort.hashCode)) {
+  //     ZegoLoggerService.logWarn(
+  //       'isolate: isolate changed, cause of app opened! ignore this event',
+  //       tag: 'call',
+  //       subTag: 'background message',
+  //     );
+  //     return;
+  //   }
+  //
+  //   if (null == event) {
+  //     ZegoLoggerService.logError(
+  //       'android callkit incoming event is null',
+  //       tag: 'call',
+  //       subTag: 'background message',
+  //     );
+  //
+  //     return;
+  //   }
+  //
+  //   ZegoLoggerService.logInfo(
+  //     'android callkit incoming event, event:${event.event}, body:${event.body}',
+  //     tag: 'call',
+  //     subTag: 'background message',
+  //   );
+  //
+  //   switch (event.event) {
+  //     case Event.actionCallAccept:
+  //
+  //       /// After launching the app, will check in the [ZegoUIKitPrebuiltCallInvitationService.init] method.
+  //       /// If there is exist an OfflineCallKitParams, simulate accepting the online call and join the room directly.
+  //
+  //       ZegoLoggerService.logInfo(
+  //         'accept, write accept to local, wait direct accept and enter call in ZegoUIKitPrebuiltCallInvitationService.init',
+  //         tag: 'call',
+  //         subTag: 'background message',
+  //       );
+  //       final paramsJson = await getCurrentCallKitParams();
+  //       final paramsMap = jsonDecode(paramsJson!);
+  //       paramsMap['accept'] = true;
+  //       await setOfflineCallKitParams(jsonEncode(paramsMap));
+  //
+  //       break;
+  //     case Event.actionCallDecline:
+  //       await clearOfflineCallKitCallID();
+  //       await clearOfflineCallKitParams();
+  //
+  //       await ZegoUIKit().getSignalingPlugin().refuseInvitationByInvitationID(
+  //             invitationID: invitationID,
+  //             data: '{"reason":"decline"}',
+  //           );
+  //       break;
+  //     case Event.actionCallTimeout:
+  //       await clearOfflineCallKitCallID();
+  //       await clearOfflineCallKitParams();
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  //
+  //   switch (event.event) {
+  //     case Event.actionCallAccept:
+  //     case Event.actionCallDecline:
+  //     case Event.actionCallEnded:
+  //     case Event.actionCallTimeout:
+  //       ZegoLoggerService.logInfo(
+  //         'isolate: clear IsolateNameServer, port:${backgroundPort.hashCode}',
+  //         tag: 'call',
+  //         subTag: 'background message',
+  //       );
+  //       backgroundPort.close();
+  //       IsolateNameServer.removePortNameMapping(
+  //         backgroundMessageIsolatePortName,
+  //       );
+  //
+  //       for (final subscription in signalingSubscriptions) {
+  //         subscription.cancel();
+  //       }
+  //
+  //       ZegoLoggerService.logInfo(
+  //         'clear signaling plugin, need uninstalled:$signalingPluginNeedUninstalled',
+  //         tag: 'call',
+  //         subTag: 'background message',
+  //       );
+  //       if (signalingPluginNeedUninstalled.value) {
+  //         signalingPluginNeedUninstalled.value = false;
+  //         await _uninstallSignalingPlugin(); // todo judge app is running or not?
+  //       }
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // });
 }
 
 void _listenSignalingEvents(

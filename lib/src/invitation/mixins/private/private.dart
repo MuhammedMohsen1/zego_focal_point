@@ -350,14 +350,15 @@ class ZegoCallInvitationServicePrivateImpl
     // and fcmIsolate will accidentally destroy the zim.
     ZegoLoggerService.logInfo(
       'Cancel The flutterCallkitIncomingStreamSubscription or not:'
-      '(${flutterCallkitIncomingStreamSubscription?.hashCode})',
+      // '(${flutterCallkitIncomingStreamSubscription?.hashCode})'
+      ,
       tag: 'call',
       subTag: 'call invitation service(${identityHashCode(this)})',
     );
-    if (flutterCallkitIncomingStreamSubscription != null) {
-      flutterCallkitIncomingStreamSubscription?.cancel();
-      flutterCallkitIncomingStreamSubscription = null;
-    }
+    // if (flutterCallkitIncomingStreamSubscription != null) {
+    //   flutterCallkitIncomingStreamSubscription?.cancel();
+    //   flutterCallkitIncomingStreamSubscription = null;
+    // }
     final lookupIsolate =
         IsolateNameServer.lookupPortByName(backgroundMessageIsolatePortName);
     final isMainIsolatePort =
